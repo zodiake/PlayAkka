@@ -1,0 +1,20 @@
+@(path:String)
+
+@active(p:String)= {
+    @if(p==path){
+        "active"
+    }else{
+        ""
+    }
+}
+
+<li><a href="#">Coding Analysis <span class="sr-only">(current)</span></a></li>
+<li class=@active("products")><a href="/products">ProductId</a></li>
+<li class=@active("subBrands")><a href="/subBrands">subBrands</a></li>
+<li class=@active("concrete")><a href="/concrete">SUBBRAND具体描述</a></li>
+<li class=@active("noName")><a href="/noName">SUBBRAND noName</a></li>
+<li class=@active("segmentDesc")><a href="/segmentDesc">segment desc</a></li>
+<li class=@active("categories")><a href="/categories">categories</a></li>
+<li class=@active("confList")><a href="/confList">confList</a></li>
+<li class=@active("pre")><a href="/pre">pre</a></li>
+<li class=@active("preCategory")><a href="/preCategory">preCategory</a></li>

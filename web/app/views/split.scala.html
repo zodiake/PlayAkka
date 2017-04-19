@@ -1,0 +1,11 @@
+@(form: Form[SplitWord])(implicit messages: Messages, flash: Flash,request:play.api.mvc.RequestHeader)
+@main("splitWord") {
+    @helper.form(action = routes.SplitWordController.post(), 'class -> "form-signin") {
+        @helper.inputText(form("source"), 'class -> "form-control", 'placeholder -> "name")
+        @helper.inputText(form("sink"), 'class -> "form-control", 'placeholder -> "password")
+        @helper.select(form("dict"),options=List("old","new").map(i=>i->i),'class->"form-control")
+        <div>
+            <input type="submit" class="btn btn-lg btn-primary btn-block">
+        </div>
+    }
+}

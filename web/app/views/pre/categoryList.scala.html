@@ -1,0 +1,41 @@
+@import FieldHelper.horizonal
+@import custom._
+@(form:Form[PreCategoryQuery],list:List[GroupInfo])(implicit messages:Messages,request:play.api.mvc.RequestHeader)
+@script={
+    <script src="/assets/javascripts/mask.js"></script>
+    <script src="/assets/javascripts/pre.js"></script>
+}
+@side={
+    @sideBar("preCategory")
+}
+
+@main("product",script=script,side=side){
+    @helper.form(action=routes.PreCodingController.preCategory(),'class->"form-inline",'method->"get"){
+
+    @helper.inputText(form("keyword"),'class->"form-control")
+    <input type="submit" class="btn btn-default">
+    @if(form.hasGlobalErrors) {
+        @for(error <- form.globalErrors) {
+            <div class="error">@Messages(error.messages, error.args)</div>
+        }
+    }
+}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ITEM_ID</th>
+            <th>BRAND</th>
+        </tr>
+        </thead>
+        <tbody>
+        @for(item<-list){
+            <th>@item.name</th>
+            <th>@item.c</th>
+        <tr>
+        </tr>
+        }
+        </tbody>
+    </table>
+</div>
+}

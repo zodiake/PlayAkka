@@ -1,0 +1,22 @@
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width:100%;
+    z-index: 10;
+    text-align:center;
+    font-size:5em;
+    vertical-align:middle;
+    background-color:black;
+    opacity:0.6;
+}
+.overlay span{
+    position:absolute;
+    top:40%;
+    left:50%;
+    color:white;
+}
+
+div.error{
+    color:red
+}

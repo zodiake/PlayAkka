@@ -1,0 +1,57 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /                           controllers.Application.index
+
+POST    /                           controllers.Application.login
+
+GET     /main                       controllers.Application.main
+
+GET     /topSelling                 controllers.TopSelling.main
+
+GET     /profile                    controllers.ProfileController.profile
+
+POST    /profile                    controllers.ProfileController.changePwd
+
+GET     /export                     controllers.ExportController.export
+
+POST    /export                     controllers.ExportController.exportExcel
+
+GET     /confList                   controllers.ExportController.list
+
+GET     /download/*file             controllers.ExportController.download(file)
+
+GET     /categories                 controllers.CateCodeController.list
+
+GET     /segments                   controllers.SegmentController.list
+
+GET     /noName                     controllers.SegmentController.noName
+
+GET     /segmentDesc                controllers.SegmentController.segmentDesc
+
+GET     /products                   controllers.ProductQueryController.list
+
+GET     /subBrands                  controllers.SubBrandController.list
+
+GET     /concrete                   controllers.SubBrandController.concrete
+
+GET     /pre                        controllers.PreCodingController.list
+
+GET     /pre/segments               controllers.PreCodingController.findByCategory
+
+GET     /preCategory                controllers.PreCodingController.preCategory
+
+GET     /splitWord                  controllers.SplitWordController.split
+
+POST    /splitWord                  controllers.SplitWordController.post
+
+GET     /hosts                      controllers.StaticHostController.list
+
+GET     /deployXml                  controllers.XmlController.dbXml
+
+POST    /deployXml                  controllers.XmlController.deployXml
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.at(path="/public", file)

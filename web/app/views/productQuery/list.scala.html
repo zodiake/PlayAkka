@@ -1,0 +1,48 @@
+@import FieldHelper.horizonal
+@import custom._
+@(form:Form[ProductQuery],list:List[Product])(implicit messages:Messages,request:play.api.mvc.RequestHeader)
+@script={
+    <script src="/assets/javascripts/mask.js"></script>
+}
+@side={
+    @sideBar("products")
+}
+
+@main("product",script=script,side=side){
+    @helper.form(action=routes.ProductQueryController.list(),'class->"form-inline",'method->"get"){
+    @helper.inputText(form("prodId"), 'class->"form-control",'placeholder->"name")
+    @helper.inputText(form("periodCode"), 'class->"form-control",'placeholder->"name")
+    @helper.inputText(form("mark"), 'class->"form-control",'placeholder->"name")
+    <input type="submit" class="btn btn-default">
+}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>item_id</th>
+            <th>attrNo</th>
+            <th>attrValue</th>
+            <th>storeId</th>
+            <th>level_I</th>
+            <th>level_II</th>
+            <th>brand</th>
+            <th>type</th>
+        </tr>
+        </thead>
+        <tbody>
+        @for(item<-list){
+        <tr>
+            <td>@item.id</td>
+            <td>@item.attrNo</td>
+            <td>@item.attrValue</td>
+            <td>@item.storeId</td>
+            <td>@item.levelI</td>
+            <td>@item.levelII</td>
+            <td>@item.brand</td>
+            <td>@item.tp</td>
+        </tr>
+        }
+        </tbody>
+    </table>
+</div>
+}

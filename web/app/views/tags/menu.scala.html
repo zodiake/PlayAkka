@@ -1,0 +1,14 @@
+@import play.api.mvc.Session
+@import play.api.mvc.Request
+@(implicit request:play.api.mvc.RequestHeader)
+
+@split(s:String)=@{
+    s.split(":").map(i=>
+    <li ><a href="/@i(0)">@i(1)</a></li>
+    )
+}
+
+    <li><a href="/hosts">host_list</a></li>
+@for(i<-request.session.get("app.menu").get.split(",")){
+    <li><a href="@i.split(":")(1)">@i.split(":")(0)</a><li>
+}

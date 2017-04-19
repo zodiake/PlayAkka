@@ -1,0 +1,99 @@
+@import FieldHelper.horizonal
+@import custom._
+@(form:Form[XmlForm])(implicit messages:Messages,request:play.api.mvc.RequestHeader)
+@script={
+    <script src="/assets/javascripts/remote.js"></script>
+}
+@side={
+    @sideBar("pre")
+}
+
+@main("product",script=script,side=side){
+    <form method="post" action="/deployXml">
+        <div class="form-group row">
+            <label for="tableName" class="col-sm-2 col-form-label">tableName</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" id="tableName" name="tableName">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="dbName" class="col-sm-2 col-form-label">dbName</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" id="dbName" name="dbName">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="lang" class="col-sm-2 col-form-label">lang</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" id="lang" name="lang">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="mbd" class="col-sm-2 col-form-label">mdb</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" id="mbd" name="mbd">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="hLevel" class="col-sm-2 col-form-label">hLevel</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" id="hLevel" name="hLevel">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="period" class="col-sm-2 col-form-label">period</label>
+            <div class="col-sm-4">
+                <input type="number" class="form-control" id="period" name="period">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">remoteHost</label>
+            <div class="col-sm-4">
+                <select name="remoteHost" class="form-control">
+                    <option value="0.0.0.0">--choose--</option>
+                    <option value="hkgwinrfpp157">hkgwinrfpp157</option>
+                    <option value="hkgwinrfpp158">hkgwinrfpp158</option>
+                    <option value="hkgwinrfpp159">hkgwinrfpp159</option>
+                    <option value="hkgwinrfpp160">hkgwinrfpp160</option>
+                    <option value="hkgwinrfpp161">hkgwinrfpp161</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="nd" class="col-sm-2 col-form-label">nd</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" id="nd" name="nd" disabled>
+            </div>
+            <input type="checkbox"/>
+        </div>
+        <div class="form-group row">
+            <label for="wd" class="col-sm-2 col-form-label">wd</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" id="wd" name="wd" disabled>
+            </div>
+            <input type="checkbox"/>
+        </div>
+        <div class="form-group row">
+            <label for="salesValue" class="col-sm-2 col-form-label">salesValue</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" id="salesValue" name="salesValue" disabled>
+            </div>
+            <input type="checkbox"/>
+        </div>
+        <div class="form-group row">
+            <label for="salesVolume" class="col-sm-2 col-form-label">salesVolume</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" id="salesVolume" name="salesVolume" disabled>
+            </div>
+            <input type="checkbox"/>
+        </div>
+        <div class="form-group row">
+            <label for="averagePrice" class="col-sm-2 col-form-label">averagePrice</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" id="averagePrice" name="averagePrice" disabled>
+            </div>
+            <input type="checkbox"/>
+        </div>
+        <input type="submit">
+    </form>
+}

@@ -1,0 +1,85 @@
+@import FieldHelper.horizonal
+@import custom._
+@(form:Form[CodingQuery],list:List[PreCodingResults],groupInfo:List[GroupInfo],total:Long,segList:List[Segment])(implicit messages:Messages,request:play.api.mvc.RequestHeader)
+@script={
+    <script src="/assets/javascripts/mask.js"></script>
+    <script src="/assets/javascripts/pre.js"></script>
+}
+@side={
+    @sideBar("pre")
+}
+
+@main("product",script=script,side=side){
+    @helper.form(action=routes.PreCodingController.list(),'class->"form-inline",'method->"get"){
+
+    @helper.inputText(form("category"), 'class->"form-control",'placeholder->"name")
+    @helper.select(form("segType"),options=segList.map(i=>i.code->i.name),'class->"form-control")
+    @helper.inputText(form("keyWords"),'class->"form-control")
+    @if(form("segTypeCode").value.isDefined&&form("segTypeCode").value.get.indexOf("SUBBRAND")> -1){
+        @helper.inputText(form("depends"), 'class->"form-control",'placeholder->"name")
+    }
+    <input type="text" id="segTypeCode" name="segTypeCode" style="display:none" value=@form("segTypeCode").value/>
+    <input type="submit" class="btn btn-default">
+    @if(form.hasGlobalErrors) {
+        @for(error <- form.globalErrors) {
+            <div class="error">@Messages(error.messages, error.args)</div>
+        }
+    }
+}
+<div class="table-responsive">
+    <h4>currentPage:@form("page").value</h4>
+    <h4>total:@total</h4>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>attrValue</th>
+            <th>count</th>
+        </tr>
+        </thead>
+        <tbody>
+        @for(item<-groupInfo){
+            <td>@item.name</td>
+            <td>@item.c</td>
+        <tr>
+        </tr>
+        }
+        </tbody>
+    </table>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ITEM_ID</th>
+            <th>BRAND</th>
+            <th>SEGTYPE</th>
+            <th>DESC</th>
+            <th>ATTRIBUTE</th>
+            <th>ATTRVALUE</th>
+        </tr>
+        </thead>
+        <tbody>
+        @for(item<-list){
+            <td>@item.id</td>
+            <td>@item.brand</td>
+            <td>@item.segType</td>
+            <td>@item.description</td>
+            <td>@item.attr</td>
+            <td>@item.attrValue</td>
+        <tr>
+        </tr>
+        }
+        </tbody>
+    </table>
+    <nav>
+        <ul class="pager">
+            <li class="previous">
+                <a href="/pre?segTypeCode=@form("segTypeCode").value&keyWords=@helper.urlEncode(form("keyWords").value.getOrElse(""))&category=@form("category").value&segType=@form("segType").value&depends=@form("depends").value&page=@form("page").value.map(i=>if(i.toInt-1<=0)1 else i.toInt-1)"><span aria-hidden="true">&larr;</span> Older</a>
+            </li>
+            <li class="next">
+                <a href="/pre?segTypeCode=@form("segTypeCode").value&keyWords=@helper.urlEncode(form("keyWords").value.getOrElse(""))&category=@form("category").value&segType=@form("segType").value&depends=@form("depends").value&page=@form("page").value.map(_.toInt+1)">Newer <span aria-hidden="true">&rarr;</span></a>
+            </li>
+        </ul>
+    </nav>
+</div>
+}

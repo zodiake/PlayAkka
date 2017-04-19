@@ -1,0 +1,9 @@
+@(implicit request:play.api.mvc.RequestHeader)
+
+@main("change password") {
+    @helper.form(action = routes.ExportController.exportExcel(), 'class -> "form-signin") {
+        <div>
+            <input type="submit" class="btn btn-lg btn-primary btn-block">
+        </div>
+    }
+}

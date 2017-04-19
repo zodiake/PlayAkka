@@ -1,0 +1,18 @@
+@(form: Form[Password])(implicit messages: Messages, flash: Flash,request:play.api.mvc.RequestHeader)
+
+@main("change password") {
+    @helper.form(action = routes.ProfileController.changePwd(), 'class -> "form-signin") {
+        @if(form.hasGlobalErrors) {
+            @for(error <- form.globalErrors) {
+                <div class="error">@Messages(error.messages, error.args)</div>
+            }
+        }
+        @flash.get("message")
+        @helper.inputText(form("password"), 'class -> "form-control", 'placeholder -> "name")
+        @helper.inputPassword(form("repeat"), 'class -> "form-control", 'placeholder -> "password")
+        <span class="error">@flash.get("app.login")</span>
+        <div>
+            <input type="submit" class="btn btn-lg btn-primary btn-block">
+        </div>
+    }
+}

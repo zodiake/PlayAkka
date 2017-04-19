@@ -1,0 +1,36 @@
+@import FieldHelper.horizonal
+@import custom._
+@(form:Form[SubBrandQuery],list:List[SubBrand])(implicit messages:Messages,request:play.api.mvc.RequestHeader)
+@scripts={
+    <script src="/assets/javascripts/mask.js"></script>
+}
+@side={@sideBar("subBrands")}
+
+@main("SUBBRANDS",scripts,side){
+@helper.form(action=routes.SubBrandController.list(),'class->"form-inline",'method->"get"){
+    @helper.inputText(form("cateCode"), 'class->"form-control",'placeholder->"name")
+    @helper.inputText(form("attrValue"), 'class->"form-control",'placeholder->"name")
+    @helper.inputText(form("attrNo"), 'class->"form-control",'placeholder->"name")
+    @helper.inputText(form("mark"), 'class->"form-control",'placeholder->"name")
+    @helper.inputText(form("period"), 'class->"form-control",'placeholder->"name")
+    <input type="submit" class="btn btn-default">
+}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Header</th>
+        </tr>
+        </thead>
+        <tbody>
+        @for(item<-list){
+        <tr>
+            <td>@item.attrValue</td>
+            <td>@item.sm</td>
+        </tr>
+        }
+        </tbody>
+    </table>
+</div>
+}

@@ -1,0 +1,54 @@
+@import FieldHelper.horizonal
+@import custom._
+@(form: Form[CategoryQuery], list: List[Item])(implicit messages: Messages,request:play.api.mvc.RequestHeader)
+
+@script = {
+    <script src="/assets/javascripts/mask.js"></script>
+}
+@side = {
+	@sideBar("categories")
+}
+
+@main("", script = script, side = side) {
+    @helper.form(action = routes.CateCodeController.list(), 'class -> "form-inline", 'method -> "get") {
+        @helper.inputText(form("cateCode"), 'class -> "form-control", 'placeholder -> "name")
+        @helper.inputText(form("period"), 'class -> "form-control", 'placeholder -> "name")
+        <input type="submit" class="btn btn-default">
+    }
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Header</th>
+                    <th>Header</th>
+                    <th>Header</th>
+                    <th>Header</th>
+                </tr>
+            </thead>
+            <tbody>
+            @for(item <- list) {
+                <tr>
+                    <td>@item.id</td>
+                    <td>@item.catCode</td>
+                    <td>@item.brand</td>
+                    <td>@item.itemType</td>
+                    <td>@item.desc</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        <nav>
+            <ul class="pager">
+                <li class="previous">
+                    <a href="/categories?cateCode=@form("cateCode").value&period=@form("period").value&page=@form("page").value.map(i => if(i.toInt - 1 <= 0) 1 else i.toInt - 1)"><span aria-hidden="true">&larr;</span>
+                        Older</a>
+                </li>
+                <li class="next">
+                    <a href="/categories?cateCode=@form("cateCode").value&period=@form("period").value&page=@form("page").value.map(_.toInt + 1)">
+                        Newer <span aria-hidden="true">&rarr;</span></a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+}

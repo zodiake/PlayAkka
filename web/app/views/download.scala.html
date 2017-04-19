@@ -1,0 +1,36 @@
+@import custom._
+@(list: List[FileStatus])(implicit request:play.api.mvc.RequestHeader)
+
+@script = {
+    <script src="/assets/javascripts/mask.js"></script>
+}
+@side = {
+    @sideBar("confList")
+}
+
+@main("download", script = script, side = side) {
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>name</th>
+                    <th>process</th>
+                </tr>
+            </thead>
+            <tbody>
+            @for(l <- list) {
+                <tr>
+                    <td><a href="/download/@l.name">@l.name</a></td>
+                    <td>@l.status%</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    @helper.form(action = routes.ExportController.exportExcel(), 'class -> "form-signin") {
+        <div>
+            <input type="submit" class="btn btn-default" value="export"/>
+        </div>
+    }
+}
