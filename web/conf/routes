@@ -53,5 +53,9 @@ GET     /deployXml                  controllers.XmlController.dbXml
 
 POST    /deployXml                  controllers.XmlController.deployXml
 
+GET     /checkCategory/query        controllers.CategoryCheckController.getQueryForm
+
+POST    /checkCategory/query        controllers.CategoryCheckController.query
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
