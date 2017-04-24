@@ -6,7 +6,7 @@
 }
 
 @main("checkCategory",script=scripts){
-    @helper.form(action=routes.CategoryCheckController.getQueryForm(),'class->"form-inline",'method->"get"){
+    @helper.form(action=routes.CategoryCheckController.getCheckForm(),'class->"form-inline",'method->"get"){
         @helper.inputText(form("web"), 'class->"form-control",'placeholder->"网站")
         @helper.inputText(form("period"),'class->"form-control",'placeholder->"期数")
         @helper.inputText(form("category"),'class->"form-control",'placeholder->"分类")
@@ -33,6 +33,6 @@
             }
             </tbody>
         </table>
-        <button class="btn btn-default" id="buttonJson">已检查</button>
+        <button class="btn btn-default" id="buttonJson">已复合</button>
     }
 }

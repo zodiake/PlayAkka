@@ -7,6 +7,13 @@ body {
   padding-top: 50px;
 }
 
+.table-striped>tbody>tr:nth-of-type(even){
+    background-color: #FFF;
+}
+
+.table-striped>tbody>tr:nth-of-type(odd){
+    background-color: #CCC;
+}
 
 /*
  * Global add-ons
@@ -105,4 +112,11 @@ body {
 }
 .submitAlign{
     margin-top:23px
+}
+
+td input[type='text']{
+    border:None;
+    width:100%;
+    background-color:transparent;
+    outline: none;
 }
