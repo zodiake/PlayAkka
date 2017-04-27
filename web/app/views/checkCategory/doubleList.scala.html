@@ -2,10 +2,10 @@
 @(form:Form[(String,String,Int)],rows:Option[List[Top100]]=None)(implicit request:Request[_],messages:Messages)
 
 @scripts={
-    <script src="/assets/javascripts/checkCode.js" type="text/javascript"></script>
+    <script src="/assets/javascripts/doubleCheckCode.js" type="text/javascript"></script>
 }
 
-@main("checkCategory",script=scripts){
+@main("top100复合",script=scripts){
     @helper.form(action=routes.CategoryCheckController.getCheckForm(),'class->"form-inline",'method->"get"){
         @helper.inputText(form("web"), 'class->"form-control",'placeholder->"网站")
         @helper.inputText(form("period"),'class->"form-control",'placeholder->"期数")

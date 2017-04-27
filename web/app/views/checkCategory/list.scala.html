@@ -5,7 +5,7 @@
     <script src="/assets/javascripts/checkCode.js" type="text/javascript"></script>
 }
 
-@main("checkCategory",script=scripts){
+@main("top100审核",script=scripts){
     @helper.form(action=routes.CategoryCheckController.getQueryForm(),'class->"form-inline",'method->"get"){
         @helper.inputText(form("web"), 'class->"form-control",'placeholder->"网站")
         @helper.inputText(form("period"),'class->"form-control",'placeholder->"期数")
