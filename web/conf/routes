@@ -61,5 +61,7 @@ GET     /doubleCheckCategory/query  controllers.CategoryCheckController.getCheck
 
 POST    /doubleCheckCategory/update controllers.CategoryCheckController.updateCheckForm
 
+GET     /checkCategory/category  controllers.CategoryCheckController.category
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

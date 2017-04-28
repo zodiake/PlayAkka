@@ -33,6 +33,8 @@ trait Top100Service {
   def updateCategoryById(seq: Seq[Top100Update], category: String, period: String, duration: Double, name: String): Unit
 
   def updateCheckedRows(seq: Seq[Top100Update], category: String, period: String, duration: Double, name: String): Unit
+
+  def findAllCategory: List[String]
 }
 
 class Top100ServiceImpl @Inject()(val database: Database) extends Top100Service {
@@ -72,6 +74,12 @@ class Top100ServiceImpl @Inject()(val database: Database) extends Top100Service 
           .on('period -> period, 'category -> category, 'duration -> duration, 'name -> name)
           .executeUpdate()
       }
+    }
+  }
+
+  override def findAllCategory: List[String] = {
+    database.withConnection { implicit conn =>
+      SQL("select distinct(catcode) as category from test_qirong_category_fix order by category").as(SqlParser.str("category").*)
     }
   }
 }

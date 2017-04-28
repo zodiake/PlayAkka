@@ -29,4 +29,16 @@ $(function () {
             }
         })
     });
+
+    var cache = [];
+    $.ajax({
+        url: '/checkCategory/category',
+        success: function (data) {
+            cache = data;
+            $(".auto-complete").autocomplete({
+                minLength: 2,
+                source: cache
+            });
+        }
+    });
 });

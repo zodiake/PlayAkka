@@ -9,7 +9,7 @@
     @helper.form(action=routes.CategoryCheckController.getCheckForm(),'class->"form-inline",'method->"get"){
         @helper.inputText(form("web"), 'class->"form-control",'placeholder->"网站")
         @helper.inputText(form("period"),'class->"form-control",'placeholder->"期数")
-        @helper.inputText(form("category"),'class->"form-control",'placeholder->"分类")
+        @helper.inputText(form("category"),'class->"form-control auto-complete",'placeholder->"分类")
         <input type="submit" class="btn btn-default submitAlign">
     }
     @if(rows!=None){
@@ -28,7 +28,7 @@
                     <td>@item.itemId</td>
                     <td>@item.prodDesc</td>
                     <td>@item.category</td>
-                    <td><input type="text" value="@item.checkedCategory"/></td>
+                    <td><input type="text" value="@item.checkedCategory" class="auto-complete"/></td>
                 </tr>
             }
             </tbody>

@@ -5,7 +5,7 @@ import models.{Top100Service, Top100Update}
 import play.api.data.{Form, Forms}
 import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsPath, Reads}
-import play.api.mvc.{BodyParsers, Session}
+import play.api.mvc.{Action, BodyParsers, Session}
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
@@ -92,5 +92,9 @@ class CategoryCheckController @Inject()(val service: Top100Service, val messages
     val beginTime = (session get key).getOrElse(System.currentTimeMillis().toString)
     session - key
     (System.currentTimeMillis() - beginTime.toLong) / 6000
+  }
+
+  def category = Action { request =>
+    Ok(Json.toJson(service.findAllCategory))
   }
 }

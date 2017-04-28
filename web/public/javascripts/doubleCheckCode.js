@@ -17,7 +17,7 @@ $(function () {
         };
         $.ajax({
             type: "post",
-            url: "/checkCategory/update",
+            url: "/doubleCheckCategory/update",
             contentType: "application/json",
             dataType: "json",
             data: JSON.stringify(data),
@@ -28,5 +28,17 @@ $(function () {
                 alert('修改失败');
             }
         })
+    });
+
+    var cache = [];
+    $.ajax({
+        url: '/checkCategory/category',
+        success: function (data) {
+            cache = data;
+            $(".auto-complete").autocomplete({
+                minLength: 2,
+                source: cache
+            });
+        }
     });
 });
