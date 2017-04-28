@@ -1,5 +1,7 @@
 package controllers
 
+import java.util.Calendar
+
 import com.google.inject.Inject
 import models.{Top100Service, Top100Update}
 import play.api.data.{Form, Forms}
@@ -13,6 +15,8 @@ import play.api.libs.functional.syntax._
   * Created by zodiake on 17-4-20.
   */
 object CategoryCheckController {
+  val lastTimestamp = "lastTimestamp"
+
   val form = Form(
     Forms.tuple(
       "web" -> Forms.text,
@@ -45,7 +49,7 @@ class CategoryCheckController @Inject()(val service: Top100Service, val messages
       success => {
         val rows = service.findByCategoryAndWeb(success._2, success._1, success._3)
         val result = if (rows.size == 0) None else Some(rows)
-        Ok(views.html.checkCategory.list(form.fill(success), result))
+        Ok(views.html.checkCategory.list(form.fill(success), result)).addingToSession(lastTimestamp -> System.currentTimeMillis().toString)
       }
     )
   }
@@ -66,7 +70,10 @@ class CategoryCheckController @Inject()(val service: Top100Service, val messages
       error => Ok(views.html.checkCategory.list(form)),
       success => {
         val list = success.list.filter(i => !i.cateCode.isEmpty && i.cateCode != success.category)
-        service.updateCategoryById(list, success.category, success.period)
+        val beginTime = (request.session get lastTimestamp).getOrElse(System.currentTimeMillis().toString)
+        request.session - lastTimestamp
+        val diff = System.currentTimeMillis() - beginTime.toLong
+        service.updateCategoryById(list, success.category, success.period, diff.toDouble / 6000)
         Ok(Json.toJson("ok"))
       }
     )
