@@ -1,13 +1,11 @@
 package controllers
 
-import java.util.Calendar
-
 import com.google.inject.Inject
 import models.{Top100Service, Top100Update}
 import play.api.data.{Form, Forms}
 import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsPath, Reads}
-import play.api.mvc.BodyParsers
+import play.api.mvc.{BodyParsers, Session}
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
@@ -15,7 +13,8 @@ import play.api.libs.functional.syntax._
   * Created by zodiake on 17-4-20.
   */
 object CategoryCheckController {
-  val lastTimestamp = "lastTimestamp"
+  val lastCheckTimestamp = "lastTimestamp"
+  val lastDoubleCheckTimestamp = "lastDoubleTimestamp"
 
   val form = Form(
     Forms.tuple(
@@ -49,7 +48,7 @@ class CategoryCheckController @Inject()(val service: Top100Service, val messages
       success => {
         val rows = service.findByCategoryAndWeb(success._2, success._1, success._3)
         val result = if (rows.size == 0) None else Some(rows)
-        Ok(views.html.checkCategory.list(form.fill(success), result)).addingToSession(lastTimestamp -> System.currentTimeMillis().toString)
+        Ok(views.html.checkCategory.list(form.fill(success), result)).addingToSession(lastCheckTimestamp -> System.currentTimeMillis().toString)
       }
     )
   }
@@ -60,7 +59,7 @@ class CategoryCheckController @Inject()(val service: Top100Service, val messages
       success => {
         val rows = service.findByCategoryAndWebAndChecked(success._2, success._1, success._3)
         val result = if (rows.size == 0) None else Some(rows)
-        Ok(views.html.checkCategory.doubleList(form.fill(success), result))
+        Ok(views.html.checkCategory.doubleList(form.fill(success), result)).addingToSession(lastDoubleCheckTimestamp -> System.currentTimeMillis().toString)
       }
     )
   }
@@ -70,10 +69,8 @@ class CategoryCheckController @Inject()(val service: Top100Service, val messages
       error => Ok(views.html.checkCategory.list(form)),
       success => {
         val list = success.list.filter(i => !i.cateCode.isEmpty && i.cateCode != success.category)
-        val beginTime = (request.session get lastTimestamp).getOrElse(System.currentTimeMillis().toString)
-        request.session - lastTimestamp
-        val diff = System.currentTimeMillis() - beginTime.toLong
-        service.updateCategoryById(list, success.category, success.period, diff.toDouble / 6000)
+        val diff = getDuration(request.session, lastCheckTimestamp)
+        service.updateCategoryById(list, success.category, success.period, diff, request.session("app.name"))
         Ok(Json.toJson("ok"))
       }
     )
@@ -84,9 +81,16 @@ class CategoryCheckController @Inject()(val service: Top100Service, val messages
       error => Ok(views.html.checkCategory.list(form)),
       success => {
         val list = success.list.filter(i => !i.cateCode.isEmpty && i.cateCode != success.category)
-        service.updateCheckedRows(list, success.category, success.period)
+        val diff = getDuration(request.session, lastDoubleCheckTimestamp)
+        service.updateCheckedRows(list, success.category, success.period, diff, request.session("app.name"))
         Ok(Json.toJson("ok"))
       }
     )
+  }
+
+  private def getDuration(session: Session, key: String): Double = {
+    val beginTime = (session get key).getOrElse(System.currentTimeMillis().toString)
+    session - key
+    (System.currentTimeMillis() - beginTime.toLong) / 6000
   }
 }

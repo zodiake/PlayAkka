@@ -18,9 +18,9 @@ case class Top100Update(itemId: BigDecimal, cateCode: String)
 trait Top100Service {
   val tableName = ConfigFactory.load().getString("top100.tableName")
 
-  val findByCategoryAndWebSql = s"select itemid,prod_raw_desc,catcode,checked_category from $tableName where catcode={catCode} and storeCode={storeCode} and is_checked is null and periodcode={period} order by itemid"
+  val findByCategoryAndWebSql = s"select itemid,prod_raw_desc,catcode,checked_category from $tableName where catcode={catCode} and storeCode={storeCode} and checkedby is null and periodcode={period} order by itemid"
 
-  val findByCategoryAndWebSqlAndCheckedSql = s"select itemid,prod_raw_desc,catcode,checked_category from $tableName where catcode={catCode} and storeCode={storeCode} and is_checked=1 and periodcode={period} order by itemid"
+  val findByCategoryAndWebSqlAndCheckedSql = s"select itemid,prod_raw_desc,catcode,checked_category from $tableName where catcode={catCode} and storeCode={storeCode} and checkedby is not null and doublecheckedby is null and periodcode={period} order by itemid"
 
   val updateCategoryById = s"update $tableName set checked_category={category} where itemid={itemId}"
 
@@ -30,9 +30,9 @@ trait Top100Service {
 
   def findByCategoryAndWebAndChecked(category: String, web: String, period: Int): List[Top100]
 
-  def updateCategoryById(seq: Seq[Top100Update], category: String, period: String, duration: Double): Unit
+  def updateCategoryById(seq: Seq[Top100Update], category: String, period: String, duration: Double, name: String): Unit
 
-  def updateCheckedRows(seq: Seq[Top100Update], category: String, period: String): Unit
+  def updateCheckedRows(seq: Seq[Top100Update], category: String, period: String, duration: Double, name: String): Unit
 }
 
 class Top100ServiceImpl @Inject()(val database: Database) extends Top100Service {
@@ -49,31 +49,27 @@ class Top100ServiceImpl @Inject()(val database: Database) extends Top100Service 
     }
   }
 
-  override def updateCategoryById(seq: Seq[Top100Update], category: String, period: String, duration: Double): Unit = {
+  override def updateCategoryById(seq: Seq[Top100Update], category: String, period: String, duration: Double, name: String): Unit = {
     val rowsNeedUpdateCategory = seq.filter(i => !i.cateCode.isEmpty && i.cateCode != category)
     database.withConnection { implicit conn =>
       rowsNeedUpdateCategory.foreach(s =>
         SQL(updateCategoryById).on('category -> s.cateCode, 'itemId -> s.itemId).executeUpdate()
       )
-      val sql = SQL(s"update $tableName set is_checked=1 where periodcode={period} and catcode={category} and period={duration}")
-        .on('period -> period, 'category -> category, 'duration -> duration)
-      println(period)
-      println(category)
-      sql
-        .executeUpdate()
+      val sql = SQL(s"update $tableName set check_period={duration},checked_by={name} where periodcode={period} and catcode={category}")
+        .on('period -> period, 'category -> category, 'duration -> duration, 'name -> name)
+      sql.executeUpdate()
     }
   }
 
-
-  override def updateCheckedRows(seq: Seq[Top100Update], category: String, period: String): Unit = {
+  override def updateCheckedRows(seq: Seq[Top100Update], category: String, period: String, duration: Double, name: String): Unit = {
     val rowsNeedUpdateCategory = seq.filter(i => !i.cateCode.isEmpty && i.cateCode != category)
     database.withConnection { implicit conn =>
       rowsNeedUpdateCategory.foreach(s =>
         SQL(updateCategoryById).on('category -> s.cateCode, 'itemId -> s.itemId).executeUpdate()
       )
       seq.foreach { s =>
-        SQL(s"update $tableName set is_double_checked=1 where periodcode={period} and catcode={category}")
-          .on('period -> period, 'category -> category)
+        SQL(s"update $tableName set double_check_period={duration},double_checked_by={name} where periodcode={period} and catcode={category} and ")
+          .on('period -> period, 'category -> category, 'duration -> duration, 'name -> name)
           .executeUpdate()
       }
     }
