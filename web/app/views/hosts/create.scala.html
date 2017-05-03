@@ -2,6 +2,9 @@
 @import custom._
 @(form:Form[XmlForm])(implicit messages:Messages,request:play.api.mvc.RequestHeader)
 @script={
+    <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/jquery-ui.min.css")"/>
+    <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/jquery-ui.theme.min.css")"/>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="/assets/javascripts/remote.js"></script>
 }
 @side={
@@ -19,13 +22,13 @@
         <div class="form-group row">
             <label for="dbName" class="col-sm-2 col-form-label">dbName</label>
             <div class="col-sm-4">
-                <input type="text" class="form-control" id="dbName" name="dbName">
+                <input type="text" class="form-control auto-complete" id="dbName" name="dbName">
             </div>
         </div>
         <div class="form-group row">
             <label class="col-sm-2 col-form-label">lang</label>
             <div class="col-sm-4">
-                <select class="form-control">
+                <select name="lang" class="form-control">
                     <option value="">--choose--</option>
                     <option value="ENG">ENG</option>
                     <option value="CHN">CHN</option>
@@ -37,7 +40,7 @@
             <div class="col-sm-4">
                 <div class="checkbox">
                     <label >
-                        <input type="checkbox" id="mbd1" name="mbd">
+                        <input type="checkbox" id="mbd1" name="mbd[]" value="C2C Total">
                         <span class="cr">
                             <i class="cr-icon fa fa-check"></i>
                         </span>
@@ -48,7 +51,7 @@
 
                 <div class="checkbox">
                     <label >
-                        <input type="checkbox" id="mbd2" name="mbd">
+                        <input type="checkbox" id="mbd2" name="mbd[]" value="eCommerce Market Total">
                         <span class="cr">
                             <i class="cr-icon fa fa-check"></i>
                         </span>
@@ -58,7 +61,7 @@
 
                 <div class="checkbox">
                     <label >
-                        <input type="checkbox" id="mbd3" name="mbd">
+                        <input type="checkbox" id="mbd3" name="mbd[]" value="B2C Total">
                         <span class="cr">
                             <i class="cr-icon fa fa-check"></i>
                         </span>
@@ -68,7 +71,7 @@
 
                 <div class="checkbox">
                     <label >
-                        <input type="checkbox" id="mbd4" name="mbd">
+                        <input type="checkbox" id="mbd4" name="mbd[]" value="Tmall Total">
                         <span class="cr">
                             <i class="cr-icon fa fa-check"></i>
                         </span>
@@ -78,7 +81,7 @@
 
                 <div class="checkbox">
                     <label >
-                        <input type="checkbox" id="mbd5" name="mbd">
+                        <input type="checkbox" id="mbd5" name="mbd[]" value="B2C Self-Operated">
                         <span class="cr">
                             <i class="cr-icon fa fa-check"></i>
                         </span>
@@ -88,7 +91,7 @@
 
                 <div class="checkbox">
                     <label >
-                        <input type="checkbox" id="mbd6" name="mbd">
+                        <input type="checkbox" id="mbd6" name="mbd[]" value="B2C Platform">
                         <span class="cr">
                             <i class="cr-icon fa fa-check"></i>
                         </span>
@@ -98,7 +101,7 @@
 
                 <div class="checkbox">
                     <label >
-                        <input type="checkbox" id="mbd7" name="mbd">
+                        <input type="checkbox" id="mbd7" name="mbd[]" value="Defined B2C Cross-Border">
                         <span class="cr">
                             <i class="cr-icon fa fa-check"></i>
                         </span>
@@ -108,7 +111,7 @@
 
                 <div class="checkbox">
                     <label >
-                        <input type="checkbox" id="mbd8" name="mbd">
+                        <input type="checkbox" id="mbd8" name="mbd[]" value="Tmall Platform">
                         <span class="cr">
                             <i class="cr-icon fa fa-check"></i>
                         </span>
@@ -118,7 +121,7 @@
 
                 <div class="checkbox">
                     <label >
-                        <input type="checkbox" id="mbd9" name="mbd">
+                        <input type="checkbox" id="mbd9" name="mbd[]" value="Tmall Supermarket">
                         <span class="cr">
                             <i class="cr-icon fa fa-check"></i>
                         </span>
@@ -149,13 +152,13 @@
         <div class="form-group row">
             <label for="nd" class="col-sm-2 col-form-label">nd</label>
             <div class="col-sm-4">
-                <input id="nd" name="nd" type="checkbox"/>
+                <input id="nd" name="nd" type="checkbox" value="true"/>
             </div>
         </div>
         <div class="form-group row">
             <label for="wd" class="col-sm-2 col-form-label">wd</label>
             <div class="col-sm-4">
-                <input id="wd" name="wd" type="checkbox"/>
+                <input id="wd" name="wd" type="checkbox" value="true"/>
             </div>
         </div>
         <div class="form-group row">

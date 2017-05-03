@@ -9,4 +9,14 @@ $(function(){
             text.prop('disabled',true)
         }
     });
+
+    $.ajax({
+        url: '/deployXml/getAllDbNames',
+        success: function (data) {
+            $(".auto-complete").autocomplete({
+                minLength: 2,
+                source: data
+            });
+        }
+    });
 })

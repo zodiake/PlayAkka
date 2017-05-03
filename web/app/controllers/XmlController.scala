@@ -11,6 +11,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.Logger
 import play.api.i18n.MessagesApi
+import play.api.libs.json.Json
 import play.api.mvc.Action
 
 import scala.concurrent.Future
@@ -18,7 +19,7 @@ import scala.concurrent.Future
 /**
   * Created by zodiake on 17-4-12.
   */
-case class XmlForm(tableName: String, dbName: String, lang: String, mbd: Option[List[String]],
+case class XmlForm(tableName: String, dbName: String, lang: String, mbd: List[String],
                    period: Int, remoteHost: String, nd: Option[Boolean],
                    wd: Option[Boolean], salesValue: Option[String], salesVolume: Option[String], averagePrice: Option[String])
 
@@ -39,14 +40,15 @@ class XmlController @Inject()(val messagesApi: MessagesApi, val system: ActorSys
       },
       success => {
         val hLevels = dbXmlService.findByCategory(success.dbName)
-        val nd = success.nd.map("ND(" + _ + ")").map(_ -> "FACT1")
-        val wd = success.wd.map("WD(" + _ + ")").map(_ -> "FACT2")
+        val nd = success.nd.map(_=>"ND").map(_ -> "FACT1")
+        val wd = success.wd.map(_=>"WD").map(_ -> "FACT2")
         val sv = success.salesValue.map("SALESVALUE(" + _ + ")").map(_ -> "FACT3")
         val svo = success.salesVolume.map("SALESVALUE(" + _ + ")").map(_ -> "FACT4")
         val ap = success.averagePrice.map("AVERAGEPRICE(" + _ + ")").map(_ -> "FACT5")
         val facts = List(nd, wd, sv, svo, ap).filter(_ != None).map {
           case Some(i) => Fact(i._1, i._2)
         }
+        println(success.mbd)
         val message = DbXml(success.tableName, success.dbName, success.lang, success.mbd, success.period, success.remoteHost, hLevels, facts)
         Logger.debug(hLevels.toString)
         remoteActor(success.remoteHost) ! message
@@ -57,7 +59,7 @@ class XmlController @Inject()(val messagesApi: MessagesApi, val system: ActorSys
   def form = Form(
     mapping(
       "tableName" -> text, "dbName" -> text,
-      "lang" -> text, "mbd" -> optional(list(text)),
+      "lang" -> text, "mbd" -> list(text),
       "period" -> number, "remoteHost" -> text,
       "nd" -> optional(boolean), "wd" -> optional(boolean),
       "salesValue" -> optional(text), "salesVolume" -> optional(text), "averagePrice" -> optional(text))(XmlForm.apply)(XmlForm.unapply)
@@ -77,4 +79,9 @@ class XmlController @Inject()(val messagesApi: MessagesApi, val system: ActorSys
     val hosts = configuration.getStringList("host.remoteHost ").get.asScala
     hosts.map(i => (i, s"$protocol://$systemName@$i:$port/$actorName")).toList
   }
+
+  def getAllTableName = Action {
+    Ok(Json.toJson(dbXmlService.findAllDbNames))
+  }
+
 }

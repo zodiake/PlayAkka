@@ -18,7 +18,7 @@ object XmlFileActor {
 
   case class XmlMessage(fileName: String)
 
-  case class DbXml(tableName: String, dbName: String, lang: String, mbd: Option[List[String]], period: Int, remoteHost: String, sequence: List[Hlevel], facts: List[Fact]) {
+  case class DbXml(tableName: String, dbName: String, lang: String, mbd: List[String], period: Int, remoteHost: String, sequence: List[Hlevel], facts: List[Fact]) {
 
     def toXml: Elem = {
       val s = sequence.map(i => s"'S${i.sequence}'")
@@ -59,10 +59,11 @@ object XmlFileActor {
                   <LevelName>LEVEL</LevelName>
                   <ColumnName>HLEVEL</ColumnName>
                   <CharacteristicNames>
-                    <CharacteristicName>CATEGORY</CharacteristicName>
-                    <CharacteristicName>BRAND</CharacteristicName>
-                    <CharacteristicName>VARIANT</CharacteristicName>
-                    <!--characteristicname dependes on hlevel db_customer_reqeust_v4-->
+                    {sequence.map(i => {
+                    <CharacteristicName>
+                      {i.code}
+                    </CharacteristicName>
+                  })}
                   </CharacteristicNames>
                 </Level>
               </Levels>
@@ -70,11 +71,10 @@ object XmlFileActor {
                 {sequence.map(i => {
                 <Characteristic>
                   <CharacteristicName>
-                    S
                     {i.code}
                   </CharacteristicName>
                   <ColumnName>
-                    {i.sequence}
+                    S{i.sequence}
                   </ColumnName>
                 </Characteristic>
               })}
@@ -108,12 +108,11 @@ object XmlFileActor {
     }
 
     def cdata(sequences: List[String]): String = {
-      val m = mbd.map(i => s"'${i}'")
-      m match {
-        case None =>
+      mbd match {
+        case Nil =>
           s"db_name='${dbName}' and lang='${lang}' and hlevel in (${sequences.mkString(",")}) and period>=${period}"
         case _ =>
-          s"db_name='${dbName}' and lang='${lang}' and MBD in (${m.mkString(",")}) and hlevel in (${sequences.mkString(",")}) and period>=${period}"
+          s"db_name='${dbName}' and lang='${lang}' and MBD in (${mbd.map(i => s"'${i}'").mkString(",")}) and hlevel in (${sequences.mkString(",")}) and period>=${period}"
       }
     }
   }
