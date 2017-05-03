@@ -18,27 +18,18 @@ import scala.concurrent.Future
 /**
   * Created by zodiake on 17-4-12.
   */
-case class XmlForm(tableName: String, dbName: String, lang: String, mbd: String,
-                   hLevel: String, period: Int, remoteHost: String, nd: Option[String],
-                   wd: Option[String], salesValue: Option[String], salesVolume: Option[String], averagePrice: Option[String])
+case class XmlForm(tableName: String, dbName: String, lang: String, mbd: Option[List[String]],
+                   period: Int, remoteHost: String, nd: Option[Boolean],
+                   wd: Option[Boolean], salesValue: Option[String], salesVolume: Option[String], averagePrice: Option[String])
 
 class XmlController @Inject()(val messagesApi: MessagesApi, val system: ActorSystem,
                               val configuration: Configuration, val dbXmlService: DbXmlService) extends BaseController {
-  lazy val remoteActor = createRemoteFileDeploy
+  val remoteActor = createRemoteFileDeploy
 
   def dbXml = Action { implicit request =>
 
     Ok(views.html.hosts.create(form))
   }
-
-  def form = Form(
-    mapping(
-      "tableName" -> text, "dbName" -> text,
-      "lang" -> text, "mbd" -> text, "hLevel" -> text,
-      "period" -> number, "remoteHost" -> text,
-      "nd" -> optional(text), "wd" -> optional(text),
-      "salesValue" -> optional(text), "salesVolume" -> optional(text), "averagePrice" -> optional(text))(XmlForm.apply)(XmlForm.unapply)
-  )
 
   def deployXml = UserAuthAction.async { implicit request =>
     form.bindFromRequest.fold(
@@ -47,19 +38,30 @@ class XmlController @Inject()(val messagesApi: MessagesApi, val system: ActorSys
         Future.successful(Ok(views.html.hosts.create(error)))
       },
       success => {
-        val hLevels = dbXmlService.findByCategory(success.tableName)
+        val hLevels = dbXmlService.findByCategory(success.dbName)
         val nd = success.nd.map("ND(" + _ + ")").map(_ -> "FACT1")
         val wd = success.wd.map("WD(" + _ + ")").map(_ -> "FACT2")
         val sv = success.salesValue.map("SALESVALUE(" + _ + ")").map(_ -> "FACT3")
         val svo = success.salesVolume.map("SALESVALUE(" + _ + ")").map(_ -> "FACT4")
         val ap = success.averagePrice.map("AVERAGEPRICE(" + _ + ")").map(_ -> "FACT5")
-        val facts = List(nd, wd, sv, svo, ap).filter(_ != None).map(i => Fact(i.get._1, i.get._2))
-        val message = DbXml(success.tableName, success.dbName, success.lang, success.mbd, success.hLevel, success.period, success.remoteHost, hLevels, facts)
+        val facts = List(nd, wd, sv, svo, ap).filter(_ != None).map {
+          case Some(i) => Fact(i._1, i._2)
+        }
+        val message = DbXml(success.tableName, success.dbName, success.lang, success.mbd, success.period, success.remoteHost, hLevels, facts)
         Logger.debug(hLevels.toString)
         remoteActor(success.remoteHost) ! message
         Future.successful(Ok(views.html.hosts.create(form)))
       })
   }
+
+  def form = Form(
+    mapping(
+      "tableName" -> text, "dbName" -> text,
+      "lang" -> text, "mbd" -> optional(list(text)),
+      "period" -> number, "remoteHost" -> text,
+      "nd" -> optional(boolean), "wd" -> optional(boolean),
+      "salesValue" -> optional(text), "salesVolume" -> optional(text), "averagePrice" -> optional(text))(XmlForm.apply)(XmlForm.unapply)
+  )
 
   def createRemoteFileDeploy: Map[String, ActorRef] = {
     val path = createPath().toMap

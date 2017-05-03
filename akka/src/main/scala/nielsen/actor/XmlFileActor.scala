@@ -1,9 +1,8 @@
 package nielsen.actor
 
-import akka.Done
 import akka.actor.{Actor, Props}
 import com.typesafe.config.ConfigFactory
-import nielsen.actor.XmlFileActor.{DbXml, XmlDeployDone}
+import nielsen.actor.XmlFileActor.{DbXml}
 import nielsen.actor.XmlFileActor.DbXml.{Fact, Hlevel}
 
 import scala.xml.Elem
@@ -19,7 +18,7 @@ object XmlFileActor {
 
   case class XmlMessage(fileName: String)
 
-  case class DbXml(tableName: String, dbName: String, lang: String, mbd: String, hLevel: String, period: Int, remoteHost: String, sequence: List[Hlevel], facts: List[Fact]) {
+  case class DbXml(tableName: String, dbName: String, lang: String, mbd: Option[List[String]], period: Int, remoteHost: String, sequence: List[Hlevel], facts: List[Fact]) {
 
     def toXml: Elem = {
       val s = sequence.map(i => s"'S${i.sequence}'")
@@ -71,6 +70,7 @@ object XmlFileActor {
                 {sequence.map(i => {
                 <Characteristic>
                   <CharacteristicName>
+                    S
                     {i.code}
                   </CharacteristicName>
                   <ColumnName>
@@ -108,8 +108,13 @@ object XmlFileActor {
     }
 
     def cdata(sequences: List[String]): String = {
-      val m = mbd.split(",").map(i => s"'${i}'").mkString(",")
-      s"db_name='${dbName}' and lang='${lang}' and MBD in (${m}) and hlevel in (${sequences.mkString(",")}) and period>=${period}"
+      val m = mbd.map(i => s"'${i}'")
+      m match {
+        case None =>
+          s"db_name='${dbName}' and lang='${lang}' and hlevel in (${sequences.mkString(",")}) and period>=${period}"
+        case _ =>
+          s"db_name='${dbName}' and lang='${lang}' and MBD in (${m.mkString(",")}) and hlevel in (${sequences.mkString(",")}) and period>=${period}"
+      }
     }
   }
 
