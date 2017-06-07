@@ -18,7 +18,7 @@ object XmlFileActor {
 
   case class XmlMessage(fileName: String)
 
-  case class DbXml(tableName: String, dbName: String, lang: String, mbd: List[String], period: Int, remoteHost: String, sequence: List[Hlevel], facts: List[Fact]) {
+  case class DbXml(tableName: String, dbName: String, lang: String, mbd: List[String], period: Int, remoteHost: String, sequence: List[Hlevel], facts: List[Fact],version:String) {
 
     def toXml: Elem = {
       val s = sequence.map(i => s"'S${i.sequence}'")
@@ -136,6 +136,6 @@ class XmlFileActor extends Actor {
       val xml = msg.toXml
       val config = ConfigFactory.load()
       val path = config.getString("path.xml")
-      scala.xml.XML.save(path, xml, enc = "GB18030", xmlDecl = true)
+      scala.xml.XML.save(s"$path/${msg.tableName}_${msg.dbName}_${msg.version}.xml", xml, enc = "GB18030", xmlDecl = true)
   }
 }

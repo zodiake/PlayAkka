@@ -24,7 +24,7 @@ trait PreCodingResultsService {
   val sqlSelect = " SELECT result.itemid, result.brand, result.type as segType, result.proD_desc_raw, result.attribute, item.attrvalue, rownum r "
   val sqlCount = " select count(*) "
 
-  val sqlWithBrand = " FROM coding_Result4check result,coded_Trans_item_v30 item WHERE result.itemid = item.itemid AND item.periodcode = SUBSTR(result.itemid,1,8) AND RESULT.CATCODE = {category} AND ITEM.ATTRNO = {attrno} "
+  val sqlWithBrand = " FROM coding_Result4check result,coded_Trans_item_v40 item WHERE result.itemid = item.itemid AND item.periodcode = SUBSTR(result.itemid,1,8) AND RESULT.CATCODE = {category} AND ITEM.ATTRNO = {attrno} "
 
   def findByCodingQuery(query: CodingQuery): (List[PreCodingResults], List[GroupInfo], Long)
 
@@ -58,11 +58,11 @@ class PreCodingResultsServiceImpl @Inject()(val database: Database, val cacheApi
       val sqlC = sqlCount + query.depends.map(_ => sqlWithBrand + " and (" + whereLike + ") AND RESULT.BRANDCODE = {brand}").getOrElse(sqlWithBrand + " and (" + whereLike + ")")
       val sqlg = "select item.attrvalue as catcode,count(*) as c " + query.depends.map(_ => sqlWithBrand + " and (" + whereLike + ") AND RESULT.BRANDCODE = {brand} ").getOrElse(sqlWithBrand + " and (" + whereLike + ")") + " group by item.attrvalue order by c desc"
       val parametes: Array[NamedParameter] = Array('category -> query.category, 'brand -> query.depends, 'attrno -> query.segType, 'maxSize -> query.page * size, 'minSize -> (query.page - 1) * size)
+      println(sql)
       val groupInfo = cacheApi.getOrElse("query." + query)(
         database.withConnection(implicit conn => {
           SQL(sqlg).on(parametes: _*).as(groupParser.*)
         }))
-      logger.debug(sql)
       (SQL(sql).on(parametes: _*).as(withBrandParser.*), groupInfo, SQL(sqlC).on(parametes: _*).as(scalar[Long].single))
     })
   }
@@ -72,6 +72,7 @@ class PreCodingResultsServiceImpl @Inject()(val database: Database, val cacheApi
       s"""( BRAND||TYPE||PROD_DESC_RAW||ATTRIBUTE LIKE '%${i}%' )"""
     }).mkString(" or ")
     val sqlGroup = "SELECT RESULT.CATCODE,COUNT(*) as c FROM coding_Result4check RESULT WHERE  " + whereLike + " GROUP BY CATCODE order by c desc"
+    logger.debug(sqlGroup)
     cacheApi.getOrElse("keyWords." + keyword)(
       database.withConnection(implicit conn => {
         SQL(sqlGroup).as(groupParser.*)
