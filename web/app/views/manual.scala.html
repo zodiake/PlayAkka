@@ -1,0 +1,13 @@
+@(implicit request:play.api.mvc.RequestHeader)
+@script = {
+    <script src="/assets/javascripts/manual.js"></script>
+}
+@main("manual",script=script) {
+    <form>
+       <input class="form-control" name="description" id="description">
+        <div>
+            <input type="submit" class="btn">
+        </div>
+    </form>
+    <div id="content"></div>
+}
