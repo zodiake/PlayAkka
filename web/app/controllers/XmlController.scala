@@ -1,5 +1,7 @@
 package controllers
 
+import java.io.{File, PrintWriter}
+
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.proxy.RemoteLookupProxy
 import com.google.inject.Inject
@@ -13,6 +15,7 @@ import play.api.Logger
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
 import play.api.mvc.Action
+import service.XmlService
 
 import scala.concurrent.Future
 
@@ -20,14 +23,14 @@ import scala.concurrent.Future
   * Created by zodiake on 17-4-12.
   */
 case class XmlForm(tableName: String, dbName: String, lang: String, mbd: List[String],
-                   period: Int, remoteHost: String, nd: Option[Boolean],
+                   period: Int, remoteHost: Option[String], nd: Option[Boolean],
                    wd: Option[Boolean], salesValue: Option[String], salesVolume: Option[String], averagePrice: Option[String], version: String)
 
 class XmlController @Inject()(val messagesApi: MessagesApi, val system: ActorSystem,
                               val configuration: Configuration, val dbXmlService: DbXmlService) extends BaseController {
-  val remoteActor = createRemoteFileDeploy
+  lazy val remoteActor = createRemoteFileDeploy
 
-  def dbXml = Action { implicit request =>
+  def dbXml = UserAuthAction { implicit request =>
 
     Ok(views.html.hosts.create(form))
   }
@@ -48,10 +51,17 @@ class XmlController @Inject()(val messagesApi: MessagesApi, val system: ActorSys
         val facts = List(nd, wd, sv, svo, ap).filter(_ != None).map {
           case Some(i) => Fact(i._1, i._2)
         }
-        val message = DbXml(success.tableName, success.dbName, success.lang, success.mbd, success.period, success.remoteHost, hLevels, facts,success.version)
+        val message = DbXml(success.tableName, success.dbName, success.lang, success.mbd, success.period, "", hLevels, facts, success.version)
         Logger.debug(hLevels.toString)
-        remoteActor(success.remoteHost) ! message
-        Future.successful(Ok(views.html.hosts.create(form)))
+        //remoteActor(success.remoteHost) ! message
+        val xml = XmlService.toXml(success.tableName, success.dbName, success.lang, success.mbd, success.period, "", hLevels, facts, success.version)
+
+        val path = configuration.getString("path.xml").get
+        val pw = new PrintWriter(new File(path + request.id.toString + ".xml"))
+        //Logger.debug(xml)
+        pw.write(xml)
+        pw.close()
+        Future.successful(Ok.sendFile(content = new java.io.File(path + request.id.toString + ".xml"), fileName = _ => success.tableName + ".xml").withHeaders(("Content-Disposition", "attachment; filename=" + success.tableName + ".xml")))
       })
   }
 
@@ -59,7 +69,7 @@ class XmlController @Inject()(val messagesApi: MessagesApi, val system: ActorSys
     mapping(
       "tableName" -> text, "dbName" -> text,
       "lang" -> text, "mbd" -> list(text),
-      "period" -> number, "remoteHost" -> text,
+      "period" -> number, "remoteHost" -> optional(text),
       "nd" -> optional(boolean), "wd" -> optional(boolean),
       "salesValue" -> optional(text), "salesVolume" -> optional(text),
       "averagePrice" -> optional(text), "version" -> text)(XmlForm.apply)(XmlForm.unapply)

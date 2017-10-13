@@ -28,3 +28,6 @@ lazy val akka = (project in file("akka"))
     scalaVersion := "2.11.7"
   )
 
+
+
+fork in run := true

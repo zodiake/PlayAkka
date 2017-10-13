@@ -19,11 +19,10 @@ class ManualCodingController @Inject()(val messagesApi: MessagesApi, val config:
   val configFile = scala.io.Source.fromFile(configFilePath)(Codec.UTF8).getLines().toStream.map(_.split(","))
   val catFile = scala.io.Source.fromFile(catFilePath)(Codec.UTF8).getLines().map(_.split(",")).toList
 
-  def manual(description: Option[String], customConfigFile: Option[Array[String]]) = Action { implicit req =>
+  def manual(description: Option[String], customConfigFile: Option[String]) = Action { implicit req =>
     customConfigFile.fold(
       description.fold(Ok(views.html.manual(req)))(i => Ok(Json.toJson(SegmentCoding.coding(i, kraFilePath, configFile, catFile))))
     )(i =>
-
       description.fold(Ok(views.html.manual(req)))(i => Ok(Json.toJson(SegmentCoding.coding(i, kraFilePath, configFile, catFile))))
     )
   }

@@ -53,7 +53,7 @@ GET     /deployXml                  controllers.XmlController.dbXml
 
 GET     /deployXml/getAllDbNames    controllers.XmlController.getAllTableName
 
-POST    /deployXml                  controllers.XmlController.deployXml
+GET     /downloadXml                  controllers.XmlController.deployXml
 
 GET     /checkCategory/query        controllers.CategoryCheckController.getQueryForm
 
@@ -65,7 +65,7 @@ POST    /doubleCheckCategory/update controllers.CategoryCheckController.updateCh
 
 GET     /checkCategory/category  controllers.CategoryCheckController.category
 
-GET     /manual                     controllers.ManualCodingController.manual(description:Option[String])
+GET     /manual                     controllers.ManualCodingController.manual(description:Option[String],customConfigFile:Option[String])
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

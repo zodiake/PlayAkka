@@ -2,6 +2,7 @@ package controllers
 
 import com.google.inject.Inject
 import models._
+import org.slf4j.LoggerFactory
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.MessagesApi
@@ -29,6 +30,8 @@ class PreCodingController @Inject()(val preCodingResultsService: PreCodingResult
       case codingQuery => validate(codingQuery.segTypeCode, codingQuery.depends)
     })
   )
+
+  val logger = LoggerFactory.getLogger(getClass())
 
   val categoryForm = Form(
     mapping(

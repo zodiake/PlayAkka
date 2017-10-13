@@ -1,52 +1,48 @@
-package nielsen.actor
+package service
 
-import java.io.{File, PrintWriter}
-
-import akka.actor.{Actor, Props}
-import com.typesafe.config.ConfigFactory
-import nielsen.actor.XmlFileActor.DbXml
 import nielsen.actor.XmlFileActor.DbXml.{Fact, Hlevel}
 
-/**
-  * Created by zodiake on 17-4-14.
-  */
-object XmlFileActor {
-  def props: Props = Props(new XmlFileActor)
 
-  case class DeployMessage(fileName: String)
+object XmlService {
 
-  case class XmlMessage(fileName: String)
+  def toXml(tableName: String, dbName: String, lang: String, mbd: List[String], period: Int, remoteHost: String, sequence: List[Hlevel], facts: List[Fact], version: String): String = {
 
-  case class DbXml(tableName: String, dbName: String, lang: String, mbd: List[String], period: Int, remoteHost: String, sequence: List[Hlevel], facts: List[Fact], version: String) {
+    def cdata(sequences: List[String]): String = {
+      mbd match {
+        case Nil =>
+          s"db_name='${dbName}' and lang='${lang}' and hlevel in (${sequences.mkString(",")}) and period>=${period}"
+        case _ =>
+          s"db_name='${dbName}' and lang='${lang}' and MBD in (${mbd.map(i => s"'${i}'").mkString(",")}) and hlevel in (${sequences.mkString(",")}) and period>=${period}"
+      }
+    }
 
-    def toXml: String = {
-      val s = sequence.map(i => s"'S${i.sequence}'")
-      val s1 = sequence.map(i => {
-        s"""<CharacteristicName>${i.code}</CharacteristicName>"""
-      }).mkString("")
+    val s = sequence.map(i => s"'S${i.sequence}'")
+    val s1 = sequence.map(i => {
+      s"""<CharacteristicName>${i.code}</CharacteristicName>"""
+    }).mkString("")
 
-      val s2 = {
-        sequence.map(i => {
-          s"""
+    val s2 = {
+      sequence.map(i => {
+        s"""
             <Characteristic>
                 <CharacteristicName>${i.code}</CharacteristicName>
                 <ColumnName>S${i.sequence}</ColumnName>
             </Characteristic>"""
-        })
-      }.mkString("")
+      })
+    }.mkString("")
 
-      val s3 = facts.map(i => {
-        s"""
+    val s3 = facts.map(i => {
+      s"""
             <Fact>
               <FactName>${i.factName}</FactName>
               <ColumnName>${i.columnName}</ColumnName>
               <Decimals>0</Decimals>
               <Rounding>false</Rounding>
             </Fact>"""
-      }).mkString("")
+    }).mkString("")
 
-      val xml =
-        s"""<?xml version="1.0" encoding="GB18030"?>
+    val xml =
+      s"""<?xml version="1.0" encoding="GB18030"?>
         <InfactModelXml xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
           <LogicalDbName>ecomm</LogicalDbName>
           <TargetType>infact</TargetType>
@@ -104,40 +100,6 @@ object XmlFileActor {
           </Facts>
         </InfactModelXml>
         """
-      xml
-    }
-
-    def cdata(sequences: List[String]): String = {
-      mbd match {
-        case Nil =>
-          s"db_name='${dbName}' and lang='${lang}' and hlevel in (${sequences.mkString(",")}) and period>=${period}"
-        case _ =>
-          s"db_name='${dbName}' and lang='${lang}' and MBD in (${mbd.map(i => s"'${i}'").mkString(",")}) and hlevel in (${sequences.mkString(",")}) and period>=${period}"
-      }
-    }
-  }
-
-  case object XmlDeployDone
-
-  object DbXml {
-
-    case class Hlevel(code: String, sequence: Int)
-
-    case class Fact(factName: String, columnName: String)
-
-  }
-
-}
-
-class XmlFileActor extends Actor {
-
-  override def receive: Receive = {
-    case msg: DbXml =>
-      val xml = msg.toXml
-      val config = ConfigFactory.load()
-      val path = config.getString("path.xml")
-      val pw = new PrintWriter(new File("hello.xml"))
-      pw.write(xml)
-      pw.close
+    xml
   }
 }

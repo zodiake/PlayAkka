@@ -50,7 +50,9 @@ class PreCodingResultsServiceImpl @Inject()(val database: Database, val cacheApi
 
   override def findByCodingQuery(query: CodingQuery): (List[PreCodingResults], List[GroupInfo], Long) = {
     database.withConnection(implicit conn => {
-      val s = SQL(s"select category_check.get_seg_desc('${query.keyWords}') as sql from dual").as(SqlParser.str("sql").single)
+      val keyWords = query.keyWords
+      val str="select category_check.get_seg_desc('"+keyWords+"') as sql from dual"
+      val s = SQL(str).as(SqlParser.str("sql").single)
 
       val whereLike = s.substring(s.indexOf("WHERE") + 5)
       val sqlWhere = query.depends.map(_ => sqlWithBrand + " and rownum<={maxSize} and (" + whereLike + ") AND RESULT.BRANDCODE = {brand}").getOrElse(sqlWithBrand + " and rownum<={maxSize} and (" + whereLike + ")")
@@ -58,7 +60,6 @@ class PreCodingResultsServiceImpl @Inject()(val database: Database, val cacheApi
       val sqlC = sqlCount + query.depends.map(_ => sqlWithBrand + " and (" + whereLike + ") AND RESULT.BRANDCODE = {brand}").getOrElse(sqlWithBrand + " and (" + whereLike + ")")
       val sqlg = "select item.attrvalue as catcode,count(*) as c " + query.depends.map(_ => sqlWithBrand + " and (" + whereLike + ") AND RESULT.BRANDCODE = {brand} ").getOrElse(sqlWithBrand + " and (" + whereLike + ")") + " group by item.attrvalue order by c desc"
       val parametes: Array[NamedParameter] = Array('category -> query.category, 'brand -> query.depends, 'attrno -> query.segType, 'maxSize -> query.page * size, 'minSize -> (query.page - 1) * size)
-      println(sql)
       val groupInfo = cacheApi.getOrElse("query." + query)(
         database.withConnection(implicit conn => {
           SQL(sqlg).on(parametes: _*).as(groupParser.*)
